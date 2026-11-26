@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="しゅくだいチェック">
+  <title>しゅくだいチェック！</title>
+  <style>
+    :root {
+      --bg: #FFF9EE;
+      --card: #FFFFFF;
+      --primary: #FF8A3D;
+      --primary-dark: #E86F20;
+      --done-bg: #E8FBF0;
+      --done-border: #38C172;
+      --text: #333333;
+      --sub: #777777;
+      --blue: #4EA8DE;
+      --yellow: #FFD166;
+      --pink: #FF6B8B;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 50px;
+    }
+
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    /* ヘッダー */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--card);
+      padding: 16px 20px;
+      border-radius: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin-bottom: 18px;
+    }
+
+    .date-box h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+    }
+
+    .date-text {
+      font-size: 1rem;
+      color: var(--sub);
+      font-weight: bold;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wallet-badge {
+      background: #FFF3CD;
+      border: 3px solid var(--yellow);
+      border-radius: 18px;
+      padding: 8px 16px;
+      text-align: center;
+    }
+
+    .wallet-label {
+      font-size: 0.75rem;
+      color: #8A6500;
+      font-weight: bold;
+      display: block;
+    }
+
+    .wallet-amount {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #D97706;
+    }
+
+    .sound-btn {
+      border: 2px solid #E2E8F0;
+      background: #FFF;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    /* 全クリお祝いバナー */
+    .reward-banner {
+      display: none;
+      background: linear-gradient(135deg, #FF758C 0%, #FF7EB3 50%, #FFD166 100%);
+      color: #FFF;
+      border-radius: 24px;
+      padding: 22px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(255, 117, 140, 0.35);
+      animation: popIn 0.5s ease;
+    }
+
+    .reward-banner.show {
+      display: block;
+    }
+
+    .reward-banner h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.8rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.18);
+    }
+
+    .reward-banner p {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.85); opacity: 0; }
+      70% { transform: scale(1.04); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* セクション見出し */
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin: 18px 0 10px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-pill {
+      background: #FFE5D0;
+      color: var(--primary-dark);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+    }
+
+    /* 宿題・練習グリッド */
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .task-card {
+      background: var(--card);
+      border: 4px solid #EFEFEF;
+      border-radius: 22px;
+      padding: 18px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 5px 0 #E5E5E5;
+      user-select: none;
+    }
+
+    .task-card:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #E5E5E5;
+    }
+
+    .task-card.done {
+      background: var(--done-bg);
+      border-color: var(--done-border);
+      box-shadow: 0 5px 0 #289E5A;
+    }
+
+    .task-icon {
+      font-size: 2.6rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .task-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .task-status {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      background: #F1F5F9;
+      color: #64748B;
+    }
+
+    .task-card.done .task-status {
+      background: var(--done-border);
+      color: #FFFFFF;
+    }
+
+    /* ボーナスエリア */
+    .bonus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .bonus-btn {
+      background: #FFF;
+      border: 3px solid var(--blue);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #3B8CC0;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .bonus-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #3B8CC0;
+    }
+
+    .bonus-btn.hard {
+      border-color: var(--pink);
+      box-shadow: 0 4px 0 #D94E6E;
+    }
+
+    .bonus-btn.hard:active {
+      box-shadow: 0 1px 0 #D94E6E;
+    }
+
+    .bonus-emoji {
+      font-size: 2.4rem;
+    }
+
+    .bonus-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      display: block;
+    }
+
+    .bonus-sub {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #D97706;
+    }
+
+    /* カレンダー */
+    .calendar-card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin-bottom: 22px;
+    }
+
+    .cal-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .stat-chip {
+      background: #FFF5F5;
+      border: 2px solid #FEB2B2;
+      color: #C53030;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .stat-chip.month {
+      background: #EBF8FF;
+      border-color: #90CDF4;
+      color: #2B6CB0;
+    }
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .cal-nav-btn {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .cal-month-label {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .cal-dow {
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: var(--sub);
+      padding-bottom: 4px;
+    }
+
+    .cal-dow.sun { color: #E53E3E; }
+    .cal-dow.sat { color: #3182CE; }
+
+    .cal-day {
+      background: #F8FAFC;
+      border-radius: 12px;
+      min-height: 58px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid transparent;
+    }
+
+    .cal-day.empty {
+      background: transparent;
+    }
+
+    .cal-day.today {
+      border-color: var(--primary);
+      background: #FFF7ED;
+    }
+
+    .cal-day.all-done {
+      background: #E8FBF0;
+    }
+
+    .cal-num {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #475569;
+    }
+
+    .cal-mark {
+      font-size: 1.25rem;
+      line-height: 1.1;
+    }
+
+    .cal-mini {
+      font-size: 0.7rem;
+      color: #64748B;
+      font-weight: bold;
+    }
+
+    /* おうちの人メニューボタン */
+    .parent-area {
+      text-align: center;
+    }
+
+    .parent-btn {
+      background: #E2E8F0;
+      border: none;
+      color: #475569;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* モーダル */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #FFF;
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .modal h3 {
+      margin-top: 0;
+      font-size: 1.35rem;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border-radius: 10px;
+    }
+
+    .btn-ok { background: var(--done-border); color: #FFF; }
+    .btn-cancel { background: #E2E8F0; color: #334155; }
+    .btn-danger { background: #EF4444; color: #FFF; }
+    .btn-blue { background: var(--blue); color: #FFF; }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0;
+      text-align: left;
+      gap: 10px;
+    }
+
+    .setting-row input[type="number"] {
+      width: 90px;
+      padding: 8px;
+      font-size: 1rem;
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      text-align: right;
+    }
+
+    .task-edit-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .task-edit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F8FAFC;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .add-task-box {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .add-task-box select,
+    .add-task-box input {
+      padding: 8px 10px;
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .add-task-box input {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* 紙吹雪キャンバス */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="date-box">
+        <div class="date-text" id="todayDateText">----</div>
+        <h1 id="greetingText">きょうの しゅくだい！</h1>
+      </div>
+      <div class="header-right">
+        <div class="wallet-badge">
+          <span class="wallet-label">💰 おこづかい</span>
+          <span class="wallet-amount" id="walletAmount">0円</span>
+        </div>
+        <button class="sound-btn" id="soundToggleBtn" aria-label="おとのきりかえ">🔊</button>
+      </div>
+    </div>
+
+    <!-- 全クリアご褒美バナー -->
+    <div class="reward-banner" id="rewardBanner">
+      <h2>🎉 ぜんぶ おわったよ！すごい！ 🎉</h2>
+      <p>ゲームや アニメを みて いいよ！ 🎮📺✨</p>
+    </div>
+
+    <!-- 今日の宿題・練習 -->
+    <div class="section-title">
+      <span>📚 きょうの やること</span>
+      <span class="progress-pill" id="progressPill">0 / 7 できた！</span>
+    </div>
+    <div class="task-grid" id="taskGrid"></div>
+
+    <!-- ボーナス（お小遣い） -->
+    <div class="section-title">
+      <span>🌟 がんばりボーナス（おこづかい）</span>
+    </div>
+    <div class="bonus-grid">
+      <button class="bonus-btn" onclick="openBonusModal('help')">
+        <span class="bonus-emoji">🧹</span>
+        <div>
+          <span class="bonus-title">おてつだい した！</span>
+          <span class="bonus-sub" id="helpRewardLabel">+50円</span>
+        </div>
+      </button>
+      <button class="bonus-btn hard" onclick="openBonusModal('hard')">
+        <span class="bonus-emoji">🔥</span>
+        <div>
+          <span class="bonus-title">むずかしいところ できた！</span>
+          <span class="bonus-sub" id="hardRewardLabel">+50円</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- カレンダー -->
+    <div class="calendar-card">
+      <div class="cal-stats">
+        <div class="stat-chip" id="streakText">🔥 0日れんぞく できた！</div>
+        <div class="stat-chip month" id="monthDoneText">💮 この月 0日</div>
+      </div>
+      <div class="cal-header">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">◀ まえ</button>
+        <div class="cal-month-label" id="calMonthLabel">----年--月</div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">つぎ ▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <!-- おうちの人メニュー -->
+    <div class="parent-area">
+      <button class="parent-btn" onclick="openParentModal()">⚙️ おうちの人メニュー（項目の追加・おこづかい精算）</button>
+    </div>
+  </div>
+
+  <!-- ボーナス確認モーダル -->
+  <div class="modal-backdrop" id="bonusModal">
+    <div class="modal">
+      <h3 id="bonusModalTitle">おてつだい した！</h3>
+      <p>おうちの人に みせてから おしてね！</p>
+      <div class="modal-btns">
+        <button class="btn btn-cancel" onclick="closeBonusModal()">やめる</button>
+        <button class="btn btn-ok" onclick="confirmBonus()">もらう！（<span id="bonusModalYen">50</span>円）</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- おうちの人モーダル -->
+  <div class="modal-backdrop" id="parentModal">
+    <div class="modal">
+      <h3>⚙️ おうちの人メニュー</h3>
+
+      <div class="setting-row">
+        <span>💰 おこづかいの調整</span>
+        <div>
+          <button class="btn btn-sm btn-cancel" onclick="adjustMoney(-50)">-50円</button>
+          <button class="btn btn-sm btn-blue" onclick="adjustMoney(50)">+50円</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <span>👛 おこづかいを渡した</span>
+        <button class="btn btn-sm btn-danger" onclick="resetMoney()">0円にする</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #E2E8F0;margin:14px 0;">
+
+      <div class="setting-row">
+        <label for="helpInput">🧹 おてつだい金額（円）</label>
+        <input type="number" id="helpInput" min="0" step="10">
+      </div>
+
+      <div class="setting-row">
+        <label for="hardInput">🔥 むずかしい問題（円）</label>
+        <input type="number" id="hardInput" min="0" step="10">
+      </div>
+
+      <hr style="border:none;border-top:1px solid #E2E8F0;margin:14px 0;">
+
+      <div style="text-align:left; font-weight:bold; margin-bottom:6px;">📝 やること項目の編集</div>
+      <div class="task-edit-list" id="taskEditList"></div>
+
+      <div class="add-task-box">
+        <select id="newTaskIcon">
+          <option value="🎵">🎵</option>
+          <option value="⚽">⚽</option>
+          <option value="🏊">🏊</option>
+          <option value="📚">📚</option>
+          <option value="✍️">✍️</option>
+          <option value="🎨">🎨</option>
+          <option value="🤸">🤸</option>
+          <option value="🔤">🔤</option>
+          <option value="💃">💃</option>
+          <option value="⭐">⭐</option>
+        </select>
+        <input type="text" id="newTaskName" placeholder="例：ピアノ、なわとび">
+        <button class="btn btn-sm btn-blue" onclick="addTaskItem()">追加</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #E2E8F0;margin:14px 0;">
+
+      <div class="setting-row">
+        <span>🔄 きょうのチェックをやり直す</span>
+        <button class="btn btn-sm btn-cancel" onclick="resetTodayTasks()">リセット</button>
+      </div>
+
+      <div class="modal-btns">
+        <button class="btn btn-ok" onclick="saveParentSettings()">保存してとじる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "kodomo_homework_app_v2";
+
+    const DEFAULT_TASKS = [
+      { id: "kanji",   name: "漢字",   icon: "✏️" },
+      { id: "sansu",   name: "算数",   icon: "🔢" },
+      { id: "kokugo",  name: "国語",   icon: "📖" },
+      { id: "ondoku",  name: "音読",   icon: "🗣️" },
+      { id: "kakezan", name: "掛け算", icon: "✖️" },
+      { id: "eigo",    name: "英語",   icon: "🔤" },
+      { id: "dance",   name: "ダンス", icon: "💃" }
+    ];
+
+    function getLocalDateStr(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function createDefaultState() {
+      return {
+        lastDate: getLocalDateStr(),
+        taskList: DEFAULT_TASKS.map(t => ({ ...t })),
+        tasks: {},
+        history: {},
+        money: 0,
+        settings: {
+          helpReward: 50,
+          hardReward: 50,
+          soundOn: true
+        }
+      };
+    }
+
+    let state = loadState();
+    let viewYear = new Date().getFullYear();
+    let viewMonth = new Date().getMonth();
+    let pendingBonusType = null;
+    let audioCtx = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("kodomo_homework_app_v1");
+        if (!raw) return createDefaultState();
+        const parsed = JSON.parse(raw);
+        let taskList = parsed.taskList;
+        if (!Array.isArray(taskList) || taskList.length === 0) {
+          taskList = DEFAULT_TASKS.map(t => ({ ...t }));
+        }
+        return {
+          ...createDefaultState(),
+          ...parsed,
+          taskList,
+          tasks: parsed.tasks || {},
+          settings: { ...createDefaultState().settings, ...(parsed.settings || {}) },
+          history: parsed.history || {}
+        };
+      } catch (e) {
+        return createDefaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[s]));
+    }
+
+    function syncTodayHistory() {
+      const today = getLocalDateStr();
+      const totalCount = state.taskList.length;
+      const doneCount = state.taskList.filter(t => !!state.tasks[t.id]).length;
+      const allDone = totalCount > 0 && doneCount === totalCount;
+      const prevHist = state.history[today] || { doneCount: 0, totalCount, allDone: false, bonusCount: 0 };
+      state.history[today] = {
+        ...prevHist,
+        doneCount,
+        totalCount,
+        allDone
+      };
+    }
+
+    // 朝・日付変更チェック（自動リセット）
+    function checkDateReset() {
+      const today = getLocalDateStr();
+      if (state.lastDate !== today) {
+        state.lastDate = today;
+        state.tasks = {};
+        viewYear = new Date().getFullYear();
+        viewMonth = new Date().getMonth();
+        saveState();
+        renderAll();
+      }
+    }
+
+    // 効果音（Web Audio API）
+    function playTone(type) {
+      if (!state.settings.soundOn) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        const beep = (freq, start, dur, wave = "sine") => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = wave;
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.18, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(start);
+          osc.stop(start + dur);
+        };
+
+        if (type === "check") {
+          beep(587.33, now, 0.12);
+          beep(880, now + 0.08, 0.18);
+        } else if (type === "fanfare") {
+          beep(523.25, now, 0.15, "triangle");
+          beep(659.25, now + 0.12, 0.15, "triangle");
+          beep(783.99, now + 0.24, 0.15, "triangle");
+          beep(1046.5, now + 0.36, 0.45, "triangle");
+        } else if (type === "coin") {
+          beep(987.77, now, 0.1);
+          beep(1318.51, now + 0.08, 0.3);
+        }
+      } catch (e) {}
+    }
+
+    // 宿題タップ処理
+    function toggleTask(taskId) {
+      checkDateReset();
+      const wasDone = !!state.tasks[taskId];
+      state.tasks[taskId] = !wasDone;
+
+      syncTodayHistory();
+      saveState();
+      renderAll();
+
+      const doneCount = state.taskList.filter(t => !!state.tasks[t.id]).length;
+      const allDone = state.taskList.length > 0 && doneCount === state.taskList.length;
+
+      if (!wasDone) {
+        if (allDone) {
+          playTone("fanfare");
+          launchConfetti();
+        } else {
+          playTone("check");
+        }
+      }
+    }
+
+    // ボーナスモーダル
+    function openBonusModal(type) {
+      pendingBonusType = type;
+      const yen = type === "help" ? state.settings.helpReward : state.settings.hardReward;
+      document.getElementById("bonusModalTitle").textContent =
+        type === "help" ? "🧹 おてつだい した！" : "🔥 むずかしいところ できた！";
+      document.getElementById("bonusModalYen").textContent = yen;
+      document.getElementById("bonusModal").classList.add("open");
+    }
+
+    function closeBonusModal() {
+      document.getElementById("bonusModal").classList.remove("open");
+      pendingBonusType = null;
+    }
+
+    function confirmBonus() {
+      if (!pendingBonusType) return;
+      checkDateReset();
+      const yen = pendingBonusType === "help" ? state.settings.helpReward : state.settings.hardReward;
+      state.money += yen;
+
+      const today = getLocalDateStr();
+      const prevHist = state.history[today] || { doneCount: 0, totalCount: state.taskList.length, allDone: false, bonusCount: 0 };
+      state.history[today] = {
+        ...prevHist,
+        bonusCount: (prevHist.bonusCount || 0) + 1
+      };
+
+      saveState();
+      closeBonusModal();
+      playTone("coin");
+      renderAll();
+    }
+
+    // おうちの人メニュー
+    function openParentModal() {
+      document.getElementById("helpInput").value = state.settings.helpReward;
+      document.getElementById("hardInput").value = state.settings.hardReward;
+      renderTaskEditList();
+      document.getElementById("parentModal").classList.add("open");
+    }
+
+    function renderTaskEditList() {
+      const listEl = document.getElementById("taskEditList");
+      listEl.innerHTML = "";
+      state.taskList.forEach(t => {
+        const row = document.createElement("div");
+        row.className = "task-edit-item";
+        row.innerHTML = `
+          <span>${escapeHtml(t.icon)} ${escapeHtml(t.name)}</span>
+          <button class="btn btn-sm btn-danger" onclick="removeTaskItem('${t.id}')">けす</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function addTaskItem() {
+      const icon = document.getElementById("newTaskIcon").value;
+      const nameInput = document.getElementById("newTaskName");
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert("なまえを入力してください（例：ピアノ）");
+        return;
+      }
+      state.taskList.push({
+        id: "task_" + Date.now(),
+        name,
+        icon
+      });
+      nameInput.value = "";
+      syncTodayHistory();
+      saveState();
+      renderTaskEditList();
+      renderAll();
+    }
+
+    function removeTaskItem(id) {
+      if (state.taskList.length <= 1) {
+        alert("項目は1つ以上残してください");
+        return;
+      }
+      state.taskList = state.taskList.filter(t => t.id !== id);
+      delete state.tasks[id];
+      syncTodayHistory();
+      saveState();
+      renderTaskEditList();
+      renderAll();
+    }
+
+    function adjustMoney(delta) {
+      state.money = Math.max(0, state.money + delta);
+      saveState();
+      renderHeader();
+    }
+
+    function resetMoney() {
+      if (confirm("おこづかいを 0円 にリセットしますか？")) {
+        state.money = 0;
+        saveState();
+        renderHeader();
+      }
+    }
+
+    function resetTodayTasks() {
+      if (confirm("きょうのチェックをすべて「まだ」に戻しますか？")) {
+        state.tasks = {};
+        syncTodayHistory();
+        saveState();
+        renderAll();
+      }
+    }
+
+    function saveParentSettings() {
+      const h = parseInt(document.getElementById("helpInput").value, 10);
+      const d = parseInt(document.getElementById("hardInput").value, 10);
+      if (!isNaN(h) && h >= 0) state.settings.helpReward = h;
+      if (!isNaN(d) && d >= 0) state.settings.hardReward = d;
+      saveState();
+      document.getElementById("parentModal").classList.remove("open");
+      renderAll();
+    }
+
+    // 連続達成日数の計算
+    function calcStreak() {
+      let streak = 0;
+      const d = new Date();
+      const todayStr = getLocalDateStr(d);
+      if (!(state.history[todayStr] && state.history[todayStr].allDone)) {
+        d.setDate(d.getDate() - 1);
+      }
+      while (true) {
+        const key = getLocalDateStr(d);
+        if (state.history[key] && state.history[key].allDone) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function changeMonth(diff) {
+      viewMonth += diff;
+      if (viewMonth < 0) {
+        viewMonth = 11;
+        viewYear--;
+      } else if (viewMonth > 11) {
+        viewMonth = 0;
+        viewYear++;
+      }
+      renderCalendar();
+    }
+
+    // 描画関数
+    function renderHeader() {
+      const now = new Date();
+      const week = ["日", "月", "火", "水", "木", "金", "土"][now.getDay()];
+      document.getElementById("todayDateText").textContent =
+        `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日（${week}）`;
+
+      const hour = now.getHours();
+      let greet = "きょうも がんばろう！";
+      if (hour < 11) greet = "おはよう！ きょうの やること";
+      else if (hour >= 18) greet = "こんばんは！ あとすこし！";
+
+      const doneCount = state.taskList.filter(t => !!state.tasks[t.id]).length;
+      if (state.taskList.length > 0 && doneCount === state.taskList.length) {
+        greet = "きょうは ぜんぶ クリア！";
+      }
+
+      document.getElementById("greetingText").textContent = greet;
+      document.getElementById("walletAmount").textContent = `${state.money}円`;
+      document.getElementById("soundToggleBtn").textContent = state.settings.soundOn ? "🔊" : "🔇";
+
+      document.getElementById("helpRewardLabel").textContent = `+${state.settings.helpReward}円`;
+      document.getElementById("hardRewardLabel").textContent = `+${state.settings.hardReward}円`;
+    }
+
+    function renderTasks() {
+      const grid = document.getElementById("taskGrid");
+      grid.innerHTML = "";
+      let doneCount = 0;
+
+      state.taskList.forEach(t => {
+        const isDone = !!state.tasks[t.id];
+        if (isDone) doneCount++;
+
+        const card = document.createElement("div");
+        card.className = `task-card ${isDone ? "done" : ""}`;
+        card.onclick = () => toggleTask(t.id);
+        card.innerHTML = `
+          <span class="task-icon">${escapeHtml(t.icon)}</span>
+          <span class="task-name">${escapeHtml(t.name)}</span>
+          <span class="task-status">${isDone ? "済み！💮" : "まだ"}</span>
+        `;
+        grid.appendChild(card);
+      });
+
+      const total = state.taskList.length;
+      document.getElementById("progressPill").textContent = `${doneCount} / ${total} できた！`;
+      const banner = document.getElementById("rewardBanner");
+      if (total > 0 && doneCount === total) {
+        banner.classList.add("show");
+      } else {
+        banner.classList.remove("show");
+      }
+    }
+
+    function renderCalendar() {
+      document.getElementById("calMonthLabel").textContent = `${viewYear}年${viewMonth + 1}月`;
+      const grid = document.getElementById("calGrid");
+      grid.innerHTML = "";
+
+      const dows = ["日", "月", "火", "水", "木", "金", "土"];
+      dows.forEach((name, idx) => {
+        const el = document.createElement("div");
+        el.className = `cal-dow ${idx === 0 ? "sun" : idx === 6 ? "sat" : ""}`;
+        el.textContent = name;
+        grid.appendChild(el);
+      });
+
+      const firstDow = new Date(viewYear, viewMonth, 1).getDay();
+      const lastDate = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const todayStr = getLocalDateStr();
+      let monthAllDone = 0;
+
+      for (let i = 0; i < firstDow; i++) {
+        const empty = document.createElement("div");
+        empty.className = "cal-day empty";
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= lastDate; day++) {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const rec = state.history[dateStr];
+        const cell = document.createElement("div");
+        let cls = "cal-day";
+        if (dateStr === todayStr) cls += " today";
+        if (rec && rec.allDone) {
+          cls += " all-done";
+          monthAllDone++;
+        }
+        cell.className = cls;
+
+        let mark = "";
+        let mini = "";
+        if (rec) {
+          if (rec.allDone) mark = "💮";
+          else if (rec.doneCount > 0) mark = "🌱";
+          if (rec.bonusCount > 0) mini = `🪙×${rec.bonusCount}`;
+          else if (!rec.allDone && rec.doneCount > 0) mini = `${rec.doneCount}/${rec.totalCount || state.taskList.length}`;
+        }
+
+        cell.innerHTML = `
+          <span class="cal-num">${day}</span>
+          <span class="cal-mark">${mark}</span>
+          <span class="cal-mini">${mini}</span>
+        `;
+        grid.appendChild(cell);
+      }
+
+      document.getElementById("streakText").textContent = `🔥 ${calcStreak()}日れんぞく できた！`;
+      document.getElementById("monthDoneText").textContent = `💮 この月 ${monthAllDone}日`;
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderTasks();
+      renderCalendar();
+    }
+
+    // 紙吹雪アニメーション
+    function launchConfetti() {
+      const canvas = document.getElementById("confettiCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ["#FF6B8B", "#FFD166", "#38C172", "#4EA8DE", "#FF8A3D"];
+      const pieces = Array.from({ length: 90 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height * 0.5,
+        w: 8 + Math.random() * 8,
+        h: 6 + Math.random() * 8,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 3 + Math.random() * 5,
+        rot: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+
+      let frames = 0;
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        frames++;
+        if (frames < 170) requestAnimationFrame(tick);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      tick();
+    }
+
+    // 音ボタン
+    document.getElementById("soundToggleBtn").onclick = () => {
+      state.settings.soundOn = !state.settings.soundOn;
+      saveState();
+      renderHeader();
+    };
+
+    // 画面を開いた時・朝iPadを開き直した時に自動日付チェック
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") checkDateReset();
+    });
+    setInterval(checkDateReset, 60000);
+
+    checkDateReset();
+    renderAll();
+  </script>
+</body>
+</html>
